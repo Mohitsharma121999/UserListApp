@@ -1,0 +1,9 @@
+export default {
+    IS_FIRST_TIME:"IS_FIRST_TIME",
+    CLEAR_REDUX_STATE:"CLEAR_REDUX_STATE",
+    NO_INTERNET:"NO_INTERNET",
+    USER_DATA:"USER_DATA",
+    LOGIN:"LOGIN",
+   
+  };
+  
