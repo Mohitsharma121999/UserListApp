@@ -11,6 +11,5 @@ export const saveUserData = (data: any) => {
 
 export function listUsers(query) {
 
-    console.log(query,'queryyyyyyyyyyyyyy')
   return apiGet(urls.userList + query);
 }
