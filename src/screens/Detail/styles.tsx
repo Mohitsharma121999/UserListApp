@@ -90,7 +90,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf:'flex-end',
-    padding:12
+    padding:12,
+    width:108
   },
   submitText: {
     fontSize: 16,

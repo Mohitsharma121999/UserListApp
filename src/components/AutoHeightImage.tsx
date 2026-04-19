@@ -6,6 +6,7 @@ const sizeCache: { [key: string]: number } = {};
 
 export const AutoHeightImage = memo(({ url }: { url: string }) => {
   const [aspectRatio, setAspectRatio] = useState(sizeCache[url] || 1.5);
+  
 
   useEffect(() => {
     if (url && !sizeCache[url]) {
@@ -30,6 +31,8 @@ export const AutoHeightImage = memo(({ url }: { url: string }) => {
         width: '100%',
         aspectRatio: aspectRatio,
       }}
+
+
       resizeMode={FastImage.resizeMode.contain}
     />
   );

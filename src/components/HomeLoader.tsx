@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   },
   shimmerImage: {
     width: '100%',
-    height: height/3.5,
+    height: height/3,
   },
  
 });
