@@ -1,49 +1,101 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  headerCard: {
+  container: {
+    flex: 1,
+    backgroundColor: 'white', 
+  },
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 30,
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    paddingVertical: 12,
     backgroundColor: '#fff',
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    elevation: 4,
-    shadowColor: '#000',
+    elevation: 2,
+    shadowColor: '#000', // Shadow for iOS
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 10,
+    shadowRadius: 4,
   },
-  avatarLarge: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#000',
+  backBtn: {
+    padding: 5,
+  },
+  backText: {
+    fontSize: 24,
+    color: '#000',
+    fontWeight: 'bold',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  imageContainer: {
+    width: '100%',
+    // height: 400,
+    borderRadius: 4, 
+    marginBottom: 25,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#ddd',
+
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  form: {
+    width: '100%',
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 12,
+    elevation: 1,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  label: {
+    flex: 0.35,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#444',
+  },
+  input: {
+    flex: 0.65,
+    height: 48,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 4, 
+    paddingHorizontal: 12,
+    fontSize: 15,
+    color: '#000',
+    backgroundColor: '#FAFAFA',
+  },
+  buttonContainer: {
+    alignItems: 'center', 
+    marginTop: 15,
+  },
+  submitBtn: {
+   
+    height: 50,
+    borderRadius: 4,
+    backgroundColor: '#000', 
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
+    alignSelf:'flex-end',
+    padding:12
   },
-  avatarText: { fontSize: 32, color: '#fff', fontWeight: 'bold' },
-  userName: { fontSize: 22, fontWeight: 'bold', color: '#1a1a1a' },
-  userUsername: { fontSize: 14, color: '#666', marginTop: 4 },
-  infoCard: {
-    backgroundColor: '#fff',
-    margin: 20,
-    padding: 20,
-    borderRadius: 20,
-    elevation: 2,
-  },
-  sectionTitle: {
+  submitText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 15,
-    marginTop: 10,
+    fontWeight: '600',
+    color: '#fff',
+    letterSpacing: 0.5,
   },
-  itemRow: { flexDirection: 'row', marginBottom: 20, alignItems: 'center' },
-  icon: { fontSize: 20, marginRight: 15 },
-  label: { fontSize: 12, color: '#888', textTransform: 'uppercase', letterSpacing: 1 },
-  value: { fontSize: 16, color: '#333', fontWeight: '500', marginTop: 2 },
-  divider: { height: 1, backgroundColor: '#f0f0f0', marginVertical: 15 },
 });

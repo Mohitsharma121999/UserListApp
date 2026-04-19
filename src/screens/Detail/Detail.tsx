@@ -1,80 +1,199 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { 
+  View, Text, TextInput, TouchableOpacity, ScrollView, 
+  Alert, ActivityIndicator, KeyboardAvoidingView, Platform, 
+  Image,
+  Dimensions
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
+import FastImage from 'react-native-fast-image';
 import { styles } from './styles';
+import RNFS from 'react-native-fs';
+import RNBlobUtil from 'react-native-blob-util';
+import { SAVE_DATA } from '../../config/urls';
+import { showError, showSuccess } from '../../utils/helperFunction';
+const { width: screenWidth } = Dimensions.get('window');
+const Details = ({ route, navigation }: any) => {
+  const { imageUrl } = route.params; 
+  const [loading, setLoading] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: ''
+  });
 
-const Detail = ({ route }: any) => {
-  const { userId } = route.params;
-  console.log(userId, 'userIduserIduserIduserIduserIduserId')
-  const allUsers = useSelector((state: any) => state.auth.userData);
+  const [imgHeight, setImgHeight] = useState(300);
+  useEffect(() => {
+    if (imageUrl) {
+      Image.getSize(imageUrl, (width, height) => {
+        const scaleFactor = height / width;
+        const dynamicHeight = screenWidth * scaleFactor;
+        setImgHeight(dynamicHeight);
+      }, (error) => {
+        console.log("Image size error: ", error);
+      });
+    }
+  }, [imageUrl]);
+  const updateState = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
-  console.log('userrsrsrss', allUsers);
+  const validateEmail = (email: string) => {
+    return String(email)
+      .toLowerCase()
+      .match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+  };
 
-  const user = Array.isArray(allUsers)
-    ? allUsers.find((item: any) => item.id === userId)
-    : null;
+  const handleSubmit = async () => {
+    const { first_name, last_name, email, phone } = formData;
 
-  console.log(user, 'usersrrsrsrsrsrrsrs')
+    if (!first_name.trim() || !last_name.trim() || !email.trim() || !phone.trim()) {
+      Alert.alert("Error", "Please fill all the fields");
+      return;
+    }
 
-  if (!user) {
-    return (
-      <View style={styles.center}>
-        <Text>User not found</Text>
-      </View>
-    );
-  }
+    if (!validateEmail(email)) {
+      Alert.alert("Error", "Please enter a valid email address");
+      return;
+    }
 
-  const DetailItem = ({ label, value, icon }: any) => (
-    <View style={styles.itemRow}>
-      <Text style={styles.icon}>{icon}</Text>
-      <View>
-        <Text style={styles.label}>{label}</Text>
-        <Text style={styles.value}>{value}</Text>
-      </View>
-    </View>
-  );
+    if (phone.length < 10) {
+      Alert.alert("Error", "Phone number must be 10 digits");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const localPath = `${RNFS.CachesDirectoryPath}/temp_upload_image.jpg`;
+
+      await RNFS.downloadFile({
+        fromUrl: imageUrl,
+        toFile: localPath,
+      }).promise;
+
+      const res = await RNBlobUtil.fetch(
+        'POST',
+        SAVE_DATA,
+        {
+          'Content-Type': 'multipart/form-data',
+        },
+        [
+          { name: 'first_name', data: formData.first_name },
+          { name: 'last_name', data: formData.last_name },
+          { name: 'email', data: formData.email },
+          { name: 'phone', data: formData.phone },
+          {
+            name: 'user_image',
+            filename: 'image.jpg',
+            type: 'image/jpeg',
+            data: RNBlobUtil.wrap(localPath), 
+          },
+        ]
+      );
+
+     showSuccess('Data submitted successfully!')
+      navigation.goBack();
+
+    } catch (err) {
+      console.log("Upload Error:", err);
+        showError('Data submitted successfully!')
+      Alert.alert("Error", "Something went wrong while uploading.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.headerCard}>
-          <View style={styles.avatarLarge}>
-            <Text style={styles.avatarText}>{user.name.charAt(0)}</Text>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <Text style={styles.backText}>{'←'}</Text> 
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Details Screen</Text>
+        <View style={{ width: 40 }} />
+      </View>
+
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+        style={{ flex: 1 }}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          
+         <View style={[styles.imageContainer, { height: imgHeight }]}>
+            <FastImage 
+              source={{ uri: imageUrl }} 
+              style={styles.image} 
+              resizeMode={FastImage.resizeMode.contain} 
+            />
           </View>
-          <Text style={styles.userName}>{user.name}</Text>
-          <Text style={styles.userUsername}>@{user.username}</Text>
-        </View>
 
-        <View style={styles.infoCard}>
-          <Text style={styles.sectionTitle}>Contact Information</Text>
+          <View style={styles.form}>
+            <View style={styles.inputRow}>
+              <Text style={styles.label}>First name</Text>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Enter first name"
+                placeholderTextColor="#999"
+                onChangeText={(txt) => updateState('first_name', txt)} 
+              />
+            </View>
 
-          <DetailItem label="Email" value={user.email} icon="✉️" />
-          <DetailItem label="Phone" value={user.phone} icon="📞" />
-          <DetailItem label="Website" value={user.website} icon="🌐" />
+            <View style={styles.inputRow}>
+              <Text style={styles.label}>Last name</Text>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Enter last name"
+                placeholderTextColor="#999"
+                onChangeText={(txt) => updateState('last_name', txt)} 
+              />
+            </View>
 
-          <View style={styles.divider} />
+            <View style={styles.inputRow}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Enter Email"
+                placeholderTextColor="#999"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                onChangeText={(txt) => updateState('email', txt)} 
+              />
+            </View>
 
-          <Text style={styles.sectionTitle}>Address Details</Text>
-          <DetailItem
-            label="Location"
-            value={`${user.address.street}, ${user.address.suite}, ${user.address.city}, ${user.address.zipcode}`}
-            icon="📍"
-          />
+            <View style={styles.inputRow}>
+              <Text style={styles.label}>Phone</Text>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Enter Number"
+                placeholderTextColor="#999"
+                keyboardType="numeric"
+                maxLength={10}
+                onChangeText={(txt) => updateState('phone', txt)} 
+              />
+            </View>
 
-          <View style={styles.divider} />
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity 
+                style={[styles.submitBtn, loading && { opacity: 0.7 }]} 
+                onPress={handleSubmit}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Text style={styles.submitText}>Submit</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
 
-          <Text style={styles.sectionTitle}>Company</Text>
-          <DetailItem label="Name" value={user.company.name} icon="🏢" />
-          <DetailItem label="Business" value={user.company.bs} icon="💼" />
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
-
-
-
-
-export default Detail;
+export default Details;

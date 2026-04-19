@@ -1,41 +1,50 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from 'react-native';
 
-export const styles = StyleSheet.create({
-  mainContainer: { flex: 1, backgroundColor: '#f5f7fa' },
-  header: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 15 },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#1a1a1a', marginBottom: 12 },
-  searchBox: { 
-    height: 50, backgroundColor: '#fff', borderRadius: 15, 
-    paddingHorizontal: 20, fontSize: 16, elevation: 3 
-  },
-  listContent: { paddingHorizontal: 16, paddingBottom: 20, flexGrow: 1 },
-  
-  centerLoader: {
-    flex: 1,              
-    justifyContent: 'center', 
-    alignItems: 'center',     
-  },
-  blackLoadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#000',         
-    fontWeight: '500',
-  },
+const { width } = Dimensions.get('window');
 
-  footerLoader: {
-    paddingVertical: 15,
-    alignItems: 'center',
-  },
-  blackFooterText: {
-    fontSize: 12,
-    color: '#000',         
-    marginTop: 5,
-  },
-  emptyText: { textAlign: 'center', marginTop: 50, color: '#666' },
-emptyContainer: {
+ 
+ export const styles = StyleSheet.create({
+  mainContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 50,
+    backgroundColor: '#fff', 
   },
+  listPadding: {
+    paddingRight: 16, 
+    paddingTop: 16,
+  },
+  card: {
+    width: '100%',
+    backgroundColor: '#fff',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#e0e0e0', 
+    overflow: 'hidden',
+  },
+  brandContainer: {
+    padding: 12,
+    alignItems: 'flex-end',
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+  },
+  brandText: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '500',
+    letterSpacing: 1,
+  },
+  footer: {
+    marginVertical: 30,
+    alignItems: 'center',
+  },
+  loadMoreBtn: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 4,
+  },
+  loadMoreText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  }
 });

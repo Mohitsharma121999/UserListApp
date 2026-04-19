@@ -14,44 +14,55 @@ type Methods = 'head' | 'options' | 'put' | 'post' | 'patch' | 'delete' | 'get';
 
 export async function apiReq(
   endPoint = '',
-  data = {},
+  data: any = {},
   method: Methods,
-  headers = {},
+  headers: any = {},
   requestOptions = {},
 ) {
-  console.log("Requesting:", endPoint, "Method:", method);
-
   return new Promise(async (res, rej) => {
     const getTokenHeader = await getHeaders();
-    headers = {
+
+    let finalHeaders = {
       ...getTokenHeader,
       ...headers,
     };
 
+    const isFormData = data instanceof FormData;
+
+    if (isFormData) {
+      delete finalHeaders['Content-type'];
+      delete finalHeaders['Content-Type'];
+    }
+
     const config: any = {
       method,
       url: endPoint,
-      headers,
+      headers: finalHeaders,
+      data: data,
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
     };
 
     if (method === 'get' || method === 'delete') {
-      config.params = data; 
-    } else {
-      config.data = data;
+      config.params = data;
     }
 
     axios(config)
       .then((result: any) => {
-        const { data } = result;
-        return res(data);
+        res(result.data);
       })
       .catch(error => {
-        console.log("API Error:", error?.response?.data || error.message);
-        return rej(error?.response?.data || { message: 'Network Error' });
+        console.log("Axios Detail Error:", error);
+        rej(error?.response?.data || { message: 'Network Error' });
       });
   });
 }
 
 export function apiGet(endPoint = '', data?: any, headers = {}, requestOptions?: any) {
   return apiReq(endPoint, data, 'get', headers, requestOptions);
+}
+
+export function apiPost(endPoint = '', data?: any, headers = {}, requestOptions?: any) {
+  console.log(endPoint, data, headers, requestOptions, 'API CALL');
+  return apiReq(endPoint, data, 'post', headers, requestOptions);
 }
