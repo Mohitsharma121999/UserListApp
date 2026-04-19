@@ -4,6 +4,8 @@ import {
   StatusBar,
   TouchableOpacity,
   Dimensions,
+  View,
+  Text,
 } from 'react-native';
 import { listImages } from '../../redux/actions/auth';
 import navigationString from '../../constants/navigationString';
@@ -11,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from './styles';
 import { AutoHeightImage } from '../../components/AutoHeightImage';
 import HomeLoader from '../../components/HomeLoader';
-import ListFooter from '../../components/ListFooterComp';
+import ListFooterComp from '../../components/ListFooterComp';
 
 const { width } = Dimensions.get('window');
 
@@ -30,55 +32,57 @@ const Home = ({ navigation }: any) => {
     getData(0);
   }, []);
 
-const getData = async (currentOffset: number) => {
-  if (loading || (isListEnd && currentOffset !== 0)) return;
+  const getData = async (currentOffset: number, isRefresh = false) => {
+    if (loading && !isRefresh) return;
+    if (isListEnd && !isRefresh) return;
 
-  try {
-    updateState({ loading: true });
-    const payload = {
-      user_id: '108',
-      offset: currentOffset.toString(), 
-      type: 'popular'
-    };
-    console.log(`--- Fetching Data | Offset: ${currentOffset} ---`);
-    const res: any = await listImages(payload);
+    try {
+      updateState({ loading: true });
+      const payload = {
+        user_id: '108',
+        offset: currentOffset.toString(),
+        type: 'popular'
+      };
+      console.log(`--- Fetching Data | Offset: ${currentOffset} ---`);
+      const res: any = await listImages(payload);
 
-    if (res && res.status === "success") {
-      const newImages = res.images || [];
-      if (newImages.length === 0) {
-        updateState({ isListEnd: true, loading: false });
-        return;
+      if (res && res.status === "success") {
+        const newImages = res.images || [];
+        if (newImages.length === 0) {
+          updateState({ isListEnd: true, loading: false });
+          return;
+        }
+
+        const existingIds = new Set(images.map((img: any) => img.id));
+        const uniqueNewImages = newImages.filter((img: any) => !existingIds.has(img.id));
+        updateState({
+          images: currentOffset === 0 ? newImages : [...images, ...uniqueNewImages],
+          offset: currentOffset + 1,
+          loading: false,
+          isListEnd: newImages.length < 10,
+        });
+      } else {
+        updateState({ loading: false });
       }
-
-      const existingIds = new Set(images.map((img: any) => img.id));
-      const uniqueNewImages = newImages.filter((img: any) => !existingIds.has(img.id));
-      updateState({
-        images: currentOffset === 0 ? newImages : [...images, ...uniqueNewImages],
-        offset: currentOffset + 1, 
-        loading: false,
-        isRefreshing: false,
-        isListEnd: newImages.length < 10, 
-      });
-
-    } else {
-      updateState({ loading: false, isRefreshing: false, isListEnd: true });
+    } catch (error) {
+      console.error('Pagination Error:', error);
+      updateState({ loading: false });
     }
-  } catch (error) {
-    console.error('Pagination Error:', error);
-    updateState({ loading: false, isRefreshing: false });
-  }
-};
-console.log(images,'imageseseseeseseeseseesese')
+  };
 
-  const renderItem = useCallback(({ item }: any) => (
+  const handleLoadMore = () => {
+    if (!loading && !isListEnd) {
+      getData(offset);
+    }
+  };
+
+  const renderItem = useCallback(({ item, index }: any) => (
     <TouchableOpacity
       activeOpacity={0.9}
       style={styles.card}
       onPress={() => navigation.navigate(navigationString.DETAILS, { imageUrl: item?.xt_image })}
     >
       <AutoHeightImage url={item?.xt_image} />
-      
-  
     </TouchableOpacity>
   ), [navigation]);
 
@@ -86,31 +90,38 @@ console.log(images,'imageseseseeseseeseseesese')
     <SafeAreaView style={styles.mainContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       {loading && images.length === 0 ? (
-      <HomeLoader />
-    ) : (
-      <FlatList
-        data={images}
-        renderItem={renderItem}
-      keyExtractor={(item, index) => item?.id?.toString() + index}
-        contentContainerStyle={styles.listPadding}
-        showsVerticalScrollIndicator={false}
-        initialNumToRender={10}
-  maxToRenderPerBatch={10} 
-  windowSize={5}
-  removeClippedSubviews={false}
-  updateCellsBatchingPeriod={50}
-      ListFooterComponent={() => (
-    <ListFooter
-      loading={loading}
-      isListEnd={isListEnd}
-      onLoadMore={() => getData(offset)}
-      dataLength={images.length}
-    />
-  )}
-      />)}
+        <HomeLoader />
+      ) : (
+        <FlatList
+          data={images}
+          renderItem={renderItem}
+          keyExtractor={(item) => item?.id?.toString()}
+          getItemLayout={(_, index) => ({ length: 400, offset: 400 * index, index })}
+          contentContainerStyle={styles.listPadding}
+          showsVerticalScrollIndicator={false}
+          initialNumToRender={10}
+          maxToRenderPerBatch={5}
+          removeClippedSubviews={false}
+          updateCellsBatchingPeriod={50}
+          ListFooterComponent={
+            isListEnd ? null : (
+              <ListFooterComp
+                loading={loading}
+                isListEnd={false}
+                onLoadMore={handleLoadMore}
+                dataLength={images.length}
+              />
+            )
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No images found. Click load more.</Text>
+            </View>
+          }
+        />
+      )}
     </SafeAreaView>
   );
 };
-
 
 export default Home;

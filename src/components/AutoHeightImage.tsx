@@ -29,10 +29,9 @@ export const AutoHeightImage = memo(({ url }: { url: string }) => {
       }}
       style={{
         width: '100%',
-        aspectRatio: aspectRatio,
+        aspectRatio: Math.max(aspectRatio, 1), // Prevent squash
+        minHeight: 200, // Prevent flash during load
       }}
-
-
       resizeMode={FastImage.resizeMode.contain}
     />
   );
