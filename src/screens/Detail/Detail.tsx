@@ -68,84 +68,44 @@ const Details = ({ route, navigation }: any) => {
     setLoading(true);
 
 
-     const image =
-      Platform.OS === "android"
-        ? imageUrl
-        : imageUrl;
-    const filename =imageUrl.split("/").pop();
-    const match = /\.(\w+)$/.exec(filename as string);
-    const ext = match?.[1];
-    const type = match ? `image/${match[1]}` : `image`;
-    
-      const data = new FormData();
-    data.append('first_name', formData.first_name);
-    data.append('last_name', formData.last_name);
-    data.append('email', formData.email);
-    data.append('phone', formData.phone);
 
-    
-
-    data.append('user_image', {
-      image,
-      name: `image.${ext}`,
-      type,
-    } as any);
     try {
-      const { data } = await axios.post(SAVE_DATA, formData);
-      console.log(data,'datataatatatatatatatat')
-      if (!data.isSuccess) {
-        alert("Image upload failed!");
-        return;
-      }
-      alert("Image Uploaded");
-        setLoading(false);
+      const localPath = `${RNFS.CachesDirectoryPath}/temp_upload_image.jpg`;
+
+      await RNFS.downloadFile({
+        fromUrl: imageUrl,
+        toFile: localPath,
+      }).promise;
+
+      const res = await RNBlobUtil.fetch(
+        'POST',
+        SAVE_DATA,
+        {
+          'Content-Type': 'multipart/form-data',
+        },
+        [
+          { name: 'first_name', data: formData.first_name },
+          { name: 'last_name', data: formData.last_name },
+          { name: 'email', data: formData.email },
+          { name: 'phone', data: formData.phone },
+          {
+            name: 'user_image',
+            filename: 'image.jpg',
+            type: 'image/jpeg',
+            data: RNBlobUtil.wrap(localPath), 
+          },
+        ]
+      );
+
+     showSuccess('Data submitted successfully!')
+      navigation.goBack();
+
     } catch (err) {
-      console.log(err);
-      alert("Something went wrong");
-        setLoading(false);
+      console.log("Upload Error:", err);
+        showError('Something went wrong while uploading')
     } finally {
-        setLoading(false);
-      // setSelectedImage(undefined);
+      setLoading(false);
     }
-
-    // try {
-    //   const localPath = `${RNFS.CachesDirectoryPath}/temp_upload_image.jpg`;
-
-    //   await RNFS.downloadFile({
-    //     fromUrl: imageUrl,
-    //     toFile: localPath,
-    //   }).promise;
-
-    //   const res = await RNBlobUtil.fetch(
-    //     'POST',
-    //     SAVE_DATA,
-    //     {
-    //       'Content-Type': 'multipart/form-data',
-    //     },
-    //     [
-    //       { name: 'first_name', data: formData.first_name },
-    //       { name: 'last_name', data: formData.last_name },
-    //       { name: 'email', data: formData.email },
-    //       { name: 'phone', data: formData.phone },
-    //       {
-    //         name: 'user_image',
-    //         filename: 'image.jpg',
-    //         type: 'image/jpeg',
-    //         data: RNBlobUtil.wrap(localPath), 
-    //       },
-    //     ]
-    //   );
-
-    //  showSuccess('Data submitted successfully!')
-    //   navigation.goBack();
-
-    // } catch (err) {
-    //   console.log("Upload Error:", err);
-    //     showError('Something went wrong while uploading')
-    //   // Alert.alert("Error", "Something went wrong while uploading.");
-    // } finally {
-    //   setLoading(false);
-    // }
   };
 
   return (
