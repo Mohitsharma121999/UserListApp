@@ -5,9 +5,6 @@ import {
 import { createStackNavigator } from '@react-navigation/stack';
 import StackNavigator from './StackNavigator';
 
-
-
-
 export default function Routes() {
     return (
         <NavigationContainer>

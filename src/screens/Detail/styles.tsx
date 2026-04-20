@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: '#fff',
     elevation: 2,
-    shadowColor: '#000', // Shadow for iOS
+    shadowColor: '#000', 
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,

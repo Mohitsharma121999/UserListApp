@@ -14,7 +14,6 @@ const App = () => {
         <Routes />
            <FlashMessage
              style={{marginTop:20}}
-             
               position="top"
               animated
             />

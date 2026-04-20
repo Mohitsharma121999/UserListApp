@@ -1,24 +1,24 @@
-# UserListApp 📱
+ImageListingApp 📸
+A professional React Native application built with TypeScript, Redux Toolkit, and Axios. This app efficiently handles data fetching from a REST API, featuring infinite scrolling, real-time search, and a modular UI architecture.
 
-A professional React Native application built with **TypeScript**, **Redux Toolkit**, and **Axios**. The app fetches user data from a REST API and features infinite scrolling, search functionality, and a clean UI.
+🚀 Features
+Infinite Scrolling (Pagination): Optimized performance by loading data in chunks (5 items per page).
 
-## 🚀 Features
-- **Infinite Scrolling (Pagination):** Loads 5 users at a time to optimize performance.
-- **State Management:** Uses Redux Toolkit to manage user data globally.
-- **Search Functionality:** Real-time filtering of users by name.
-- **Clean Architecture:** Separate components for List items, Footer loaders, and Empty states.
-- **Navigation:** Seamless transitions between Home and Detail screens using React Navigation.
+State Management: Robust global state handling using Redux Toolkit (RTK).
 
-## 🛠️ Tech Stack
-- React Native (CLI)
-- TypeScript
-- Redux Toolkit
-- Axios
-- React Navigation
+Real-time Search: Dynamic filtering to find specific items instantly.
 
-## 📦 Installation & Setup
+Modular Components: Clean separation of concerns with reusable components for List items, Loaders, and Error states.
 
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/Mohitsharma121999/UserListApp.git](https://github.com/Mohitsharma121999/UserListApp.git)
-   cd UserListApp
+Smooth Navigation: Built with React Navigation for a native feel between screens.
+
+🛠️ Tech Stack
+Framework: React Native (CLI)
+
+Language: TypeScript
+
+State Management: Redux Toolkit
+
+API Client: Axios
+
+Navigation: React Navigation

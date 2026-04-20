@@ -17,6 +17,8 @@ import FastImage from 'react-native-fast-image';
 import { styles } from './styles';
 import { SAVE_DATA } from '../../config/urls';
 import { showError, showSuccess } from '../../utils/helperFunction';
+import RNFS from 'react-native-fs';
+import RNBlobUtil from 'react-native-blob-util';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -58,7 +60,6 @@ const Details = ({ route, navigation }: any) => {
   const handleSubmit = async () => {
     const { first_name, last_name, email, phone } = formData;
 
-    // Validation
     if (!first_name.trim() || !last_name.trim() || !email.trim() || !phone.trim()) {
       Alert.alert("Error", "Please fill all the fields");
       return;
@@ -76,45 +77,41 @@ const Details = ({ route, navigation }: any) => {
 
     setLoading(true);
 
-    try {
-      // Create FormData for multipart upload
-      const form = new FormData();
-      form.append('first_name', first_name);
-      form.append('last_name', last_name);
-      form.append('email', email);
-      form.append('phone', phone);
-      form.append('user_image', { uri: imageUrl, name: 'image.jpg', type: 'image/jpeg' } as any);
+  try {
+      const localPath = `${RNFS.CachesDirectoryPath}/temp_upload_image.jpg`;
 
-      const response = await fetch(SAVE_DATA, {
-        method: 'POST',
-        body: form,
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
+      await RNFS.downloadFile({
+        fromUrl: imageUrl,
+        toFile: localPath,
+      }).promise;
 
-      const textResponse = await response.text();
-      console.log('Server response:', textResponse);
+    await RNBlobUtil.fetch(
+        'POST',
+        SAVE_DATA,
+        {
+          'Content-Type': 'multipart/form-data',
+        },
+        [
+          { name: 'first_name', data: formData.first_name },
+          { name: 'last_name', data: formData.last_name },
+          { name: 'email', data: formData.email },
+          { name: 'phone', data: formData.phone },
+          {
+            name: 'user_image',
+            filename: 'image.jpg',
+            type: 'image/jpeg',
+            data: RNBlobUtil.wrap(localPath), 
+          },
+        ]
+      );
 
-      let result;
-      try {
-        result = JSON.parse(textResponse);
-      } catch {
-        console.log('Non-JSON response:', textResponse);
-        showError('Server returned non-JSON response');
-        return;
-      }
+     showSuccess('Data submitted successfully!')
+      navigation.goBack();
 
-      if (result.status === 'success') {
-        showSuccess('Data submitted successfully!');
-        navigation.goBack();
-      } else {
-        showError(result.message || 'Submission failed');
-      }
     } catch (err) {
       console.log("Upload Error:", err);
-      showError('Something went wrong while uploading');
+        showError('Something went wrong while uploading')
+      // Alert.alert("Error", "Something went wrong while uploading.");
     } finally {
       setLoading(false);
     }
